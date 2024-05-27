@@ -1,0 +1,41 @@
+<!-- app/views/facilities/index.html.erb -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sports Facility Booking System</title>
+  <!-- Add your CSS stylesheets here -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Sports Facility Booking System</h1>
+    <h2>List of Sports Facilities</h2>
+  </header>
+  <main>
+    <!-- Filter Form -->
+    <form action="<%= facilities_path %>" method="get" class="filter-form">
+      <!-- Filter Inputs -->
+      <label for="facility">Filter by Facility Type:</label>
+      <select name="facility_name" id="facility_id">
+        <option value="">All</option>
+        <option value="Cricket">Cricket</option>
+        <option value="Badminton">Badminton</option>
+        <option value="Snooker">Snooker</option>
+        <option value="Football">Football</option>
+        <option value="Tennis">Tennis</option>
+      </select>
+      <button type="submit">Apply Filter</button>
+    </form>
+
+    <ul class="facility-list">
+      <% @facilities.each do |facility| %>
+        <li>
+          <a href="<%= facility_path(facility) %>"><%= facility.name %></a>
+        </li>
+      <% end %>
+    </ul>
+  </main>
+</body>
+</html>

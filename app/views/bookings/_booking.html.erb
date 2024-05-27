@@ -1,0 +1,9 @@
+<%= form_with model: [@facility, @booking] do |form| %>
+  <%= form.label :start_time %>
+  <%= form.datetime_select :start_time %>
+
+  <%= form.label :end_time %>
+  <%= form.datetime_select :end_time %>
+
+  <%= form.submit 'Book Facility' %>
+<% end %>
