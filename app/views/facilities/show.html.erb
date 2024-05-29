@@ -1,27 +1,181 @@
-<% facilities = [
-  { name: 'Cricket', description: 'Outdoor cricket field', location: 'HSR Layout', pincode: '123', images: 'https://www.shutterstock.com/image-illustration/illuminated-round-cricket-stadium-full-260nw-1393589660.jpg' },
-  { name: 'Badminton', description: 'Indoor badminton court', location: 'E city', pincode: '1234', images: 'https://img.olympics.com/images/image/private/t_s_pog_staticContent_hero_lg/f_auto/primary/kfsyzuaoipfhm4qonqci' },
-  { name: 'Snooker', description: 'Indoor snooker table', location: 'Indiranagar', pincode: '123', images: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvMyj_7uRPWT-jp5EQ6TRJl4ysl0uY-o3gczQSZjMzr7McgZ3QKsdqdhEgfBs4zxj82XM&usqp=CAU' },
-  { name: 'Football', description: 'Outdoor football field', location: 'Hebbal', pincode: '21489', images: 'https://www.shutterstock.com/image-photo/american-football-arena-yellow-goal-600nw-2357573507.jpg' },
-  { name: 'Tennis', description: 'Outdoor tennis court', location: 'Marathalli', pincode: '21489', images: 'https://www.krg.nsw.gov.au/files/assets/public/v/1/images/1-things-to-do/tennis-courts/community-services_recreation-morona-avenue-tennis-court_september-2008-3_1140x570px.jpg?dimension=pageimagefullwidth&w=1140&h=570' }
-] %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= @facility.name %> - Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      margin: 0;
+      padding: 0;
+    }
 
-<% facilities.each do |facility| %>
-  <div>
-    <h1><%= facility[:name] %></h1>
-    <p><strong>Location:</strong> <%= facility[:location] %></p>
-    <p><strong>Description:</strong> <%= facility[:description] %></p>
-    <p><strong>Pincode:</strong> <%= facility[:pincode] %></p>
-    
-    <!-- Display facility images -->
-    <% if facility[:images].present? %>
-      <% facility[:images].split(",").each do |image_url| %>
-        <img src="<%= image_url %>" alt="Facility Image">
-      <% end %>
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 2em;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1em;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      color: #333;
+      width: 100%;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+
+    .booking-form p {
+      margin-bottom: 5px;
+    }
+
+    .booking-form button {
+      background-color: #5cb85c;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .booking-form button:hover {
+      background-color: #4cae4c;
+    }
+
+    .facility-images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .facility-images img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1><%= @facility.name %></h1>
+    <p><strong>Location:</strong> <%= @facility.location %></p>
+    <p><strong>Description:</strong> <%= @facility.description %></p>
+    <p><strong>Pincode:</strong> <%= @facility.pincode %></p>
+
+    <% if @facility.images.present? %>
+      <div class="facility-images">
+        <% @facility.images.split(",").each do |image_url| %>
+          <img src="<%= image_url %>" alt="Facility Image">
+        <% end %>
+      </div>
     <% end %>
-    
-    <!-- Booking Button -->
-    <%= link_to "Book Now", new_facility_booking_path(facility) %>
-  </div>
-<% end %>
 
+    <form action="<%= facility_bookings_path(@facility) %>" method="post" class="booking-form" id="booking_form">
+      <%= csrf_meta_tags %>
+      <label for="start_time">Start Time:</label>
+      <input type="text" id="start_time" name="start_time" placeholder="Select Start Time">
+      <label for="end_time">End Time:</label>
+      <input type="text" id="end_time" name="end_time" placeholder="Select End Time">
+      <p><strong>Available Slots:</strong> <span id="available_slots"></span></p>
+
+      <button type="button" id="book_button" disabled onclick="confirmBooking()">Book Now</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var totalSlots = 10;
+      var bookingsConfirmed = 0;
+
+      var startTimePicker = flatpickr("#start_time", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        minDate: "today",
+        onChange: updateAvailableSlots
+      });
+
+      var endTimePicker = flatpickr("#end_time", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        minDate: "today",
+        onChange: updateAvailableSlots
+      });
+
+      function updateAvailableSlots() {
+        var start_time = startTimePicker.selectedDates[0];
+        var end_time = endTimePicker.selectedDates[0];
+        if (start_time && end_time) {
+          var duration = (end_time - start_time) / (60 * 60 * 1000);
+          var availableSlots = totalSlots - bookingsConfirmed;
+          document.getElementById("available_slots").innerText = availableSlots;
+          var bookButton = document.getElementById("book_button");
+          if (availableSlots > 0 && duration > 0) {
+            bookButton.disabled = false;
+          } else {
+            bookButton.disabled = true;
+          }
+        }
+      }
+
+      function confirmBooking() {
+        var form = document.getElementById("booking_form");
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", form.action, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            var responseData = JSON.parse(xhr.responseText);
+            if (responseData.success) {
+              bookingsConfirmed++;
+              updateAvailableSlots();
+              alert("Booking created successfully!");
+            } else {
+              alert("Failed to create booking!");
+            }
+          } else {
+            alert("Failed to send booking request. Please try again later.");
+          }
+        };
+        xhr.send(JSON.stringify({
+          booking: {
+            start_time: document.getElementById("start_time").value,
+            end_time: document.getElementById("end_time").value,
+          }
+        }));
+      }
+
+      document.getElementById("book_button").addEventListener("click", confirmBooking);
+    });
+  </script>
+</body>
+</html>

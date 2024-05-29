@@ -1,24 +1,31 @@
 class BookingsController < ApplicationController
-    def new
-      @facility = Facility.find(params[:facility_id])
-      @booking = Booking.new
-    end
-  
-    def create
-      @facility = Facility.find(params[:facility_id])
-      @booking = Booking.new(booking_params)
-      @booking.user_id = current_user.id # Assuming user authentication is implemented
-      
+  skip_before_action :verify_authenticity_token, only: [:create]
+  before_action :set_facility, only: %i[new create]
+
+  def new
+    @booking = Booking.new
+  end
+
+  def create
+    @booking = @facility.bookings.build(booking_params)
+    @booking.user = current_user
+
+    respond_to do |format|
       if @booking.save
-        redirect_to @facility, notice: 'Booking successful!'
+        format.json { render json: { success: true } }
       else
-        render :new, alert: 'Booking failed!'
+        format.json { render json: { success: false, errors: @booking.errors.full_messages } }
       end
     end
-  
-    private
-  
-    def booking_params
-      params.require(:booking).permit(:start_time, :end_time)
-    end
   end
+
+  private
+
+  def set_facility
+    @facility = Facility.find(params[:facility_id])
+  end
+
+  def booking_params
+    params.require(:booking).permit(:start_time, :end_time)
+  end
+end

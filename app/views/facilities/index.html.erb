@@ -1,22 +1,110 @@
-<!-- app/views/facilities/index.html.erb -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sports Facility Booking System</title>
-  <!-- Add your CSS stylesheets here -->
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f7f6;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .header h1, .header h2 {
+      margin: 0;
+      color: #333;
+    }
+
+    .main {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .filter-form {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .filter-form label {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+
+    .filter-form select, .filter-form button {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .filter-form button {
+      background-color: #5cb85c;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .filter-form button:hover {
+      background-color: #4cae4c;
+    }
+
+    .facility-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .facility-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .facility-list li span {
+      font-weight: bold;
+    }
+
+    .facility-list li a {
+      text-decoration: none;
+      color: #5cb85c;
+      font-size: 18px;
+      transition: color 0.3s ease;
+    }
+
+    .facility-list li a:hover {
+      color: #4cae4c;
+    }
+  </style>
 </head>
 <body>
-  <header>
+  <header class="header">
     <h1>Sports Facility Booking System</h1>
     <h2>List of Sports Facilities</h2>
   </header>
-  <main>
-    <!-- Filter Form -->
+  <main class="main"> 
     <form action="<%= facilities_path %>" method="get" class="filter-form">
-      <!-- Filter Inputs -->
       <label for="facility">Filter by Facility Type:</label>
       <select name="facility_name" id="facility_id">
         <option value="">All</option>
@@ -26,6 +114,10 @@
         <option value="Football">Football</option>
         <option value="Tennis">Tennis</option>
       </select>
+
+      <label for="pincode">Filter by Pincode:</label>
+      <input type="text" name="pincode" id="pincode_id" placeholder="Enter pincode">
+
       <button type="submit">Apply Filter</button>
     </form>
 
@@ -33,6 +125,7 @@
       <% @facilities.each do |facility| %>
         <li>
           <a href="<%= facility_path(facility) %>"><%= facility.name %></a>
+          <span>Available at: <%= facility.pincode %></span>
         </li>
       <% end %>
     </ul>

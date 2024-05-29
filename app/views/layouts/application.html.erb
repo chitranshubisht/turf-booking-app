@@ -6,6 +6,30 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <style>
+    .profile-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .profile-link,
+    .logout-button {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .profile-link {
+      background-color: #eee;
+    }
+
+    .logout-button {
+      background-color: #f00;
+      color: #fff;
+    }
+  </style>
   <%= javascript_importmap_tags %>
 </head>
 <body>
@@ -13,8 +37,9 @@
   <p class="alert"><%= alert %></p>
   <div>
     <% if user_signed_in? %>
-      <%= link_to "Profile", edit_user_registration_path %>
-      <%= button_to "Log out", destroy_user_session_path, method: :delete %>
+      <div class="profile-actions">  <%= link_to "Profile", edit_user_registration_path, class: "profile-link" %>
+        <%= button_to "Log out", destroy_user_session_path, method: :delete, class: "logout-button" %>
+      </div>
     <% end %>
     <%= yield %>
   </div>

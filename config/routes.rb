@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users
-  
-  resources :facilities
-  resources :bookings, only: [:new, :create]
-  
+
+  resources :facilities do
+    resources :bookings, only: %i[new create]
+  end
 end
