@@ -23,7 +23,7 @@ The Sports Facility Booking System is a web application designed to allow users 
 * Ruby version
 
 - Ruby version - 3.2.2
-- Rails Version - 7.1.2
+- Rails Version - 7.1.3.3
 
 
 * Install dependencies
